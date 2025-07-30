@@ -27,6 +27,7 @@ interface TableCellProps {
   children: ReactNode;
   className?: string;
   header?: boolean;
+  onClick?: () => void;
 }
 
 export function Table({ children, className = '' }: TableProps) {
@@ -64,15 +65,16 @@ export function TableRow({ children, className = '', onClick }: TableRowProps) {
   );
 }
 
-export function TableCell({ children, className = '', header = false }: TableCellProps) {
+export function TableCell({ children, className = '', header = false, onClick }: TableCellProps) {
   const baseClasses = header 
     ? 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
     : 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
     
+  const clickableClasses = onClick ? 'hover:bg-gray-100 cursor-pointer' : '';
   const Tag = header ? 'th' : 'td';
   
   return (
-    <Tag className={`${baseClasses} ${className}`}>
+    <Tag className={`${baseClasses} ${clickableClasses} ${className}`} onClick={onClick}>
       {children}
     </Tag>
   );
