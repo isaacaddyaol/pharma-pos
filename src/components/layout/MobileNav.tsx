@@ -128,42 +128,122 @@ export default function MobileNav() {
           </div>
 
           {/* Navigation Grid */}
-          <div className="px-6 py-6">
-            <div className="grid grid-cols-2 gap-4">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`relative flex flex-col items-center p-6 rounded-2xl transition-all duration-200 ${
-                    isActive(item.href)
-                      ? 'bg-indigo-50 border-2 border-indigo-200 shadow-sm'
-                      : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent hover:border-gray-200'
-                  }`}
-                >
-                  {/* Active indicator */}
-                  {isActive(item.href) && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-600 rounded-full"></div>
-                  )}
-                  
-                  {/* Icon container */}
-                  <div className={`w-12 h-12 rounded-xl ${item.color} flex items-center justify-center mb-3 shadow-sm`}>
-                    <i className={`${item.icon} text-white text-xl`}></i>
-                  </div>
-                  
-                  {/* Label */}
-                  <span className={`text-sm font-medium text-center ${
-                    isActive(item.href) ? 'text-indigo-700' : 'text-gray-700'
-                  }`}>
-                    {item.name}
-                  </span>
-                  
-                  {/* Active page indicator */}
-                  {isActive(item.href) && (
-                    <span className="text-xs text-indigo-500 mt-1">Current</span>
-                  )}
-                </Link>
-              ))}
-            </div>
+          <div className="px-4 py-6">
+            {navigation.length === 3 ? (
+              // For 3 items (salesperson): Single centered row
+              <div className="flex justify-center items-center gap-6">
+                {navigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`relative flex flex-col items-center p-4 rounded-2xl transition-all duration-200 w-20 ${
+                      isActive(item.href)
+                        ? 'bg-indigo-50 border-2 border-indigo-200 shadow-sm'
+                        : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent hover:border-gray-200'
+                    }`}
+                  >
+                    {/* Active indicator */}
+                    {isActive(item.href) && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-600 rounded-full"></div>
+                    )}
+                    
+                    {/* Icon container */}
+                    <div className={`w-12 h-12 rounded-xl ${item.color} flex items-center justify-center mb-3 shadow-sm`}>
+                      <i className={`${item.icon} text-white text-xl`}></i>
+                    </div>
+                    
+                    {/* Label */}
+                    <span className={`text-xs font-medium text-center leading-tight ${
+                      isActive(item.href) ? 'text-indigo-700' : 'text-gray-700'
+                    }`}>
+                      {item.name}
+                    </span>
+                    
+                    {/* Active page indicator */}
+                    {isActive(item.href) && (
+                      <span className="text-xs text-indigo-500 mt-1">Current</span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              // For 5 items (owner): 3 on top row, 2 on bottom row, all centered
+              <div className="space-y-4">
+                {/* Top row - 3 items */}
+                <div className="flex justify-center items-center gap-4">
+                  {navigation.slice(0, 3).map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`relative flex flex-col items-center p-3 rounded-2xl transition-all duration-200 w-20 ${
+                        isActive(item.href)
+                          ? 'bg-indigo-50 border-2 border-indigo-200 shadow-sm'
+                          : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent hover:border-gray-200'
+                      }`}
+                    >
+                      {/* Active indicator */}
+                      {isActive(item.href) && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-600 rounded-full"></div>
+                      )}
+                      
+                      {/* Icon container */}
+                      <div className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center mb-2 shadow-sm`}>
+                        <i className={`${item.icon} text-white text-lg`}></i>
+                      </div>
+                      
+                      {/* Label */}
+                      <span className={`text-xs font-medium text-center leading-tight ${
+                        isActive(item.href) ? 'text-indigo-700' : 'text-gray-700'
+                      }`}>
+                        {item.name}
+                      </span>
+                      
+                      {/* Active page indicator */}
+                      {isActive(item.href) && (
+                        <span className="text-xs text-indigo-500 mt-1">Current</span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+                
+                {/* Bottom row - 2 items centered */}
+                <div className="flex justify-center items-center gap-4">
+                  {navigation.slice(3).map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`relative flex flex-col items-center p-3 rounded-2xl transition-all duration-200 w-20 ${
+                        isActive(item.href)
+                          ? 'bg-indigo-50 border-2 border-indigo-200 shadow-sm'
+                          : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent hover:border-gray-200'
+                      }`}
+                    >
+                      {/* Active indicator */}
+                      {isActive(item.href) && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-600 rounded-full"></div>
+                      )}
+                      
+                      {/* Icon container */}
+                      <div className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center mb-2 shadow-sm`}>
+                        <i className={`${item.icon} text-white text-lg`}></i>
+                      </div>
+                      
+                      {/* Label */}
+                      <span className={`text-xs font-medium text-center leading-tight ${
+                        isActive(item.href) ? 'text-indigo-700' : 'text-gray-700'
+                      }`}>
+                        {item.name}
+                      </span>
+                      
+                      {/* Active page indicator */}
+                      {isActive(item.href) && (
+                        <span className="text-xs text-indigo-500 mt-1">Current</span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer */}
