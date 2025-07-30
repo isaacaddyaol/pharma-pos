@@ -3,7 +3,6 @@ import { Geist, Geist_Mono, Pacifico } from "next/font/google";
 import "./globals.css";
 import MobileNav from "../components/layout/MobileNav";
 import { AuthProvider } from "../contexts/AuthContext";
-import RoleSwitcher from "../components/auth/RoleSwitcher";
 
 const pacifico = Pacifico({
   weight: '400',
@@ -40,7 +39,6 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <MobileNav />
-          <RoleSwitcher />
         </AuthProvider>
       </body>
     </html>

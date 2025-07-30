@@ -216,7 +216,7 @@ export default function TransactionHistory() {
         <div className="bg-white p-6 rounded-xl shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Today's Sales</p>
+              <p className="text-sm text-gray-600 mb-1">Today&apos;s Sales</p>
               <p className="text-2xl font-bold text-gray-900">$2,847.50</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">

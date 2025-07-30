@@ -520,7 +520,7 @@ export default function Home() {
 
               <div className="mt-6 text-center">
                 <p className="text-gray-600">
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <button
                     onClick={() => {
                       setShowLoginModal(false);
@@ -721,7 +721,7 @@ export default function Home() {
                     <div>
                       <p className="text-amber-800 text-sm font-medium">License Verification</p>
                       <p className="text-amber-700 text-xs mt-1">
-                        Your pharmacy license will be verified within 24-48 hours. You'll receive an email confirmation once approved.
+                        Your pharmacy license will be verified within 24-48 hours. You&apos;ll receive an email confirmation once approved.
                       </p>
                     </div>
                   </div>

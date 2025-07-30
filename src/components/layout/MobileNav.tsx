@@ -6,10 +6,8 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function MobileNav() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [touchStartY, setTouchStartY] = useState(0);
-  const [touchEndY, setTouchEndY] = useState(0);
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
@@ -17,16 +15,16 @@ export default function MobileNav() {
   // Role-based navigation
   const getNavigationItems = () => {
     const baseNavigation = [
-      { name: 'Dashboard', href: '/dashboard', icon: 'ri-dashboard-line' },
-      { name: 'Inventory', href: '/inventory', icon: 'ri-medicine-bottle-line' },
-      { name: 'Sales', href: '/sales', icon: 'ri-shopping-cart-line' }
+      { name: 'Dashboard', href: '/dashboard', icon: 'ri-dashboard-line', color: 'bg-blue-500' },
+      { name: 'Inventory', href: '/inventory', icon: 'ri-medicine-bottle-line', color: 'bg-green-500' },
+      { name: 'Sales', href: '/sales', icon: 'ri-shopping-cart-line', color: 'bg-purple-500' }
     ];
 
     if (user?.role === 'owner') {
       return [
         ...baseNavigation,
-        { name: 'Reports', href: '/reports', icon: 'ri-bar-chart-line' },
-        { name: 'Admin', href: '/admin', icon: 'ri-settings-line' }
+        { name: 'Reports', href: '/reports', icon: 'ri-bar-chart-line', color: 'bg-orange-500' },
+        { name: 'Admin', href: '/admin', icon: 'ri-settings-line', color: 'bg-red-500' }
       ];
     }
 
@@ -34,142 +32,161 @@ export default function MobileNav() {
   };
 
   const navigation = getNavigationItems();
-
   const isActive = (href: string) => pathname === href;
 
-  // Handle scroll to auto-hide/show navigation
+  // Close nav when clicking outside
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Show nav when scrolling up, hide when scrolling down
-      if (currentScrollY < lastScrollY) {
-        setIsVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsVisible(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        handleCloseNav();
       }
-      
-      setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
-
-  // Handle touch gestures for swipe up from bottom
-  useEffect(() => {
-    const handleTouchStart = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      setTouchStartY(touch.clientY);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      setTouchEndY(touch.clientY);
-    };
-
-    const handleTouchEnd = () => {
-      if (!touchStartY || !touchEndY) return;
-      
-      const swipeDistance = touchStartY - touchEndY;
-      const swipeThreshold = 50;
-      const bottomThreshold = window.innerHeight - 100; // Bottom 100px of screen
-      
-      // Check if swipe started from bottom of screen and was upward
-      if (touchStartY > bottomThreshold && swipeDistance > swipeThreshold) {
-        setIsVisible(true);
-      }
-      
-      // Reset touch values
-      setTouchStartY(0);
-      setTouchEndY(0);
-    };
-
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: true });
-    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    if (isNavOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'hidden'; // Prevent background scroll
+    }
 
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'unset';
     };
-  }, [touchStartY, touchEndY]);
+  }, [isNavOpen]);
 
-  // Auto-hide after 3 seconds of inactivity
+  // Close nav on route change
   useEffect(() => {
-    if (isVisible) {
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible]);
-
-  // Show nav on page load briefly
-  useEffect(() => {
-    setIsVisible(true);
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-    }, 2000);
-
-    return () => clearTimeout(timer);
+    handleCloseNav();
   }, [pathname]);
 
-  // Don't render navigation if user is not authenticated
+  const handleOpenNav = () => {
+    setIsNavOpen(true);
+    setIsClosing(false);
+  };
+
+  const handleCloseNav = () => {
+    if (isNavOpen) {
+      setIsClosing(true);
+      setTimeout(() => {
+        setIsNavOpen(false);
+        setIsClosing(false);
+      }, 300);
+    }
+  };
+
+  // Don&apos;t render navigation if user is not authenticated
   if (!isAuthenticated || !user) {
     return null;
   }
 
   return (
     <>
-      {/* Mobile Bottom Navigation */}
-      <div 
-        ref={navRef}
-        className={`fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden z-40 transform transition-transform duration-300 ease-in-out ${
-          isVisible ? 'translate-y-0' : 'translate-y-full'
-        }`}
-        onMouseEnter={() => setIsVisible(true)}
-        onTouchStart={() => setIsVisible(true)}
+      {/* Floating Action Button */}
+      <button
+        onClick={handleOpenNav}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 md:hidden z-50 flex items-center justify-center group"
+        aria-label="Open navigation menu"
       >
-        <div className="grid grid-cols-4">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex flex-col items-center justify-center py-3 px-1 text-xs transition-colors ${
-                isActive(item.href)
-                  ? 'text-indigo-600 bg-indigo-50'
-                  : 'text-gray-600 hover:text-indigo-600'
-              }`}
-              onClick={() => {
-                // Keep nav visible briefly after navigation
-                setIsVisible(true);
-                setTimeout(() => setIsVisible(false), 1500);
-              }}
+        <i className="ri-menu-line text-xl group-hover:scale-110 transition-transform"></i>
+      </button>
+
+      {/* Backdrop */}
+      {isNavOpen && (
+        <div 
+          className={`fixed inset-0 bg-black bg-opacity-50 md:hidden z-40 transition-opacity duration-300 ${
+            isClosing ? 'opacity-0' : 'opacity-100'
+          }`}
+          onClick={handleCloseNav}
+        />
+      )}
+
+      {/* Bottom Navigation Panel */}
+      {isNavOpen && (
+        <div 
+          ref={navRef}
+          className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl md:hidden z-50 transform transition-all duration-300 ease-out ${
+            isClosing ? 'translate-y-full opacity-0' : 'translate-y-0 opacity-100'
+          }`}
+        >
+          {/* Handle bar */}
+          <div className="flex justify-center pt-4 pb-2">
+            <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+          </div>
+
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Navigation</h3>
+              <p className="text-sm text-gray-500">Quick access to all sections</p>
+            </div>
+            <button
+              onClick={handleCloseNav}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              aria-label="Close navigation"
             >
-              <i className={`${item.icon} text-xl mb-1`}></i>
-              <span className="truncate">{item.name}</span>
-            </Link>
-          ))}
+              <i className="ri-close-line text-gray-600"></i>
+            </button>
+          </div>
+
+          {/* Navigation Grid */}
+          <div className="px-6 py-6">
+            <div className="grid grid-cols-2 gap-4">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`relative flex flex-col items-center p-6 rounded-2xl transition-all duration-200 ${
+                    isActive(item.href)
+                      ? 'bg-indigo-50 border-2 border-indigo-200 shadow-sm'
+                      : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent hover:border-gray-200'
+                  }`}
+                >
+                  {/* Active indicator */}
+                  {isActive(item.href) && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-600 rounded-full"></div>
+                  )}
+                  
+                  {/* Icon container */}
+                  <div className={`w-12 h-12 rounded-xl ${item.color} flex items-center justify-center mb-3 shadow-sm`}>
+                    <i className={`${item.icon} text-white text-xl`}></i>
+                  </div>
+                  
+                  {/* Label */}
+                  <span className={`text-sm font-medium text-center ${
+                    isActive(item.href) ? 'text-indigo-700' : 'text-gray-700'
+                  }`}>
+                    {item.name}
+                  </span>
+                  
+                  {/* Active page indicator */}
+                  {isActive(item.href) && (
+                    <span className="text-xs text-indigo-500 mt-1">Current</span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-t-3xl">
+            <div className="flex items-center">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                  <span className="text-indigo-600 text-sm font-medium">
+                    {user?.name?.charAt(0) || 'U'}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                  <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Safe area for devices with home indicator */}
+          <div className="h-safe-area-inset-bottom"></div>
         </div>
-        
-        {/* Swipe indicator */}
-        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-gray-300 rounded-full"></div>
-      </div>
-
-      {/* Swipe up area - invisible touch target at bottom of screen */}
-      <div 
-        className="fixed bottom-0 left-0 right-0 h-6 md:hidden z-30"
-        onTouchStart={(e) => {
-          const touch = e.touches[0];
-          setTouchStartY(touch.clientY);
-        }}
-        onTouchEnd={() => setIsVisible(true)}
-      />
-
-      {/* No padding needed since nav is hidden by default */}
+      )}
     </>
   );
 }
